@@ -4,7 +4,6 @@ APPNAME=<%= appName %>
 APP_PATH=/opt/$APPNAME
 BUNDLE_PATH=$APP_PATH/current
 ENV_FILE=$APP_PATH/config/env.list
-PORT=<%= port %>
 USE_LOCAL_MONGO=<%= useLocalMongo? "1" : "0" %>
 
 # Remove previous version of the app, if exists
@@ -22,7 +21,7 @@ if [ "$USE_LOCAL_MONGO" == "1" ]; then
   docker run \
     -d \
     --restart=always \
-    --publish=$PORT:80 \
+    --net=host \
     --volume=$BUNDLE_PATH:/bundle \
     --env-file=$ENV_FILE \
     --link=mongodb:mongodb \
@@ -34,7 +33,7 @@ else
   docker run \
     -d \
     --restart=always \
-    --publish=$PORT:80 \
+    --net=host \
     --volume=$BUNDLE_PATH:/bundle \
     --hostname="$HOSTNAME-$APPNAME" \
     --env-file=$ENV_FILE \
@@ -53,7 +52,7 @@ fi
     --volume=/opt/$APPNAME/config/bundle.crt:/bundle.crt \
     --volume=/opt/$APPNAME/config/private.key:/private.key \
     --link=$APPNAME:backend \
-    --publish=<%= sslConfig.port %>:443 \
+    --net=host \
     --name=$APPNAME-frontend \
     meteorhacks/mup-frontend-server /start.sh
 <% } %>
